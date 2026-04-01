@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Concepts Machine — Universal Characteristic Engine</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0c0c12;
+      --panel: #12121e;
+      --border: #2a2a3e;
+      --gold: #c8a96e;
+      --blue: #7ab3d0;
+      --text: #e8e8f0;
+      --muted: #6a6a90;
+      --warning: #e8a060;
+      --danger: #e06868;
+      --success: #60c090;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Georgia', 'Times New Roman', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 1.4rem 2rem 1.2rem;
+      background: linear-gradient(160deg, #0e0e1a 0%, #10101c 100%);
+    }
+    .header-top {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 0.4rem;
+    }
+    .header-title { font-size: 1.55rem; color: var(--gold); letter-spacing: 0.04em; }
+    .header-subtitle { font-size: 0.85rem; color: var(--muted); font-style: italic; }
+    .header-quotes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 0.9rem;
+    }
+    .header-quotes blockquote {
+      font-size: 0.76rem;
+      color: var(--muted);
+      font-style: italic;
+      border-left: 2px solid var(--border);
+      padding-left: 0.8rem;
+      line-height: 1.6;
+    }
+    .header-quotes blockquote cite {
+      display: block;
+      margin-top: 0.4rem;
+      font-style: normal;
+      font-size: 0.7rem;
+      opacity: 0.7;
+    }
+
+    /* ── STRESS TEST CHIPS ── */
+    .chips-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.55rem 2rem;
+      background: #0e0e18;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .chips-label {
+      font-family: 'Courier New', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+    }
+    .chip {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.2rem 0.55rem;
+      font-family: 'Georgia', serif;
+      font-style: italic;
+      font-size: 0.78rem;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.15s;
+    }
+    .chip:hover { border-color: var(--gold); color: var(--gold); background: #1a1a28; }
+
+    /* ── MAIN SPLIT ── */
+    .main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex: 1;
+      min-height: 0;
+    }
+    .panel {
+      padding: 1.4rem 1.8rem;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+    }
+    .panel:last-child { border-right: none; }
+    .panel-label {
+      font-family: 'Courier New', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+      margin-bottom: 1.1rem;
+    }
+
+    /* ── INPUTS ── */
+    .input-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    input[type="text"] {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.55rem 0.9rem;
+      font-family: 'Georgia', serif;
+      font-size: 0.95rem;
+      border-radius: 3px;
+      flex: 1;
+    }
+    input[type="text"]:focus { outline: none; border-color: var(--gold); }
+    button {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--gold);
+      padding: 0.55rem 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    button:hover { border-color: var(--gold); background: #1a1a28; }
+    button:disabled { opacity: 0.35; cursor: not-allowed; }
+    button:disabled:hover { border-color: var(--border); background: var(--panel); }
+
+    /* ── NOTICE BOXES ── */
+    .warning-box {
+      border: 1px solid var(--warning);
+      background: rgba(232,160,96,0.06);
+      padding: 0.65rem 0.9rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.76rem;
+      color: var(--warning);
+      margin-bottom: 1rem;
+      border-radius: 3px;
+    }
+    .warning-box::before { content: "⚠ "; }
+    .estimate-box {
+      border: 1px solid #4a4a6e;
+      background: rgba(122,179,208,0.05);
+      padding: 0.65rem 0.9rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.74rem;
+      color: var(--blue);
+      margin-bottom: 1rem;
+      border-radius: 3px;
+      line-height: 1.6;
+    }
+    .estimate-box::before { content: "~ "; opacity: 0.7; }
+    .error-msg {
+      font-family: 'Courier New', monospace;
+      font-size: 0.76rem;
+      color: var(--danger);
+      padding: 0.5rem 0.7rem;
+      border: 1px solid rgba(224,104,104,0.3);
+      border-radius: 3px;
+      margin-bottom: 0.8rem;
+    }
+
+    /* ── CONCEPT DISPLAY ── */
+    .concept-name { font-size: 1.6rem; color: var(--gold); margin-bottom: 0.4rem; }
+    .tags-row { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 1rem; }
+    .tag {
+      display: inline-block;
+      background: #1a1a2a;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'Courier New', monospace;
+      font-size: 0.65rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .tag.sacred   { border-color: #5a4a7a; color: #a080c8; }
+    .tag.contested{ border-color: #7a4a2a; color: #c87840; }
+    .tag.moral    { border-color: #3a6a4a; color: #60a870; }
+    .tag.universal{ border-color: #3a5a7a; color: #5898c0; }
+    .tag.abstract { border-color: #6a4a6a; color: #b070b0; }
+    .tag.concrete { border-color: #4a5a3a; color: #80a860; }
+    .tag.estimated{ border-color: #5a5a3a; color: #a0a060; }
+
+    /* ── DIMENSION BARS ── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+    .dim-list { display: flex; flex-direction: column; gap: 0.9rem; }
+    .dim-row {
+      display: grid;
+      grid-template-columns: 140px 1fr 28px;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .dim-name {
+      font-family: 'Courier New', monospace;
+      font-size: 0.73rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .bar-bg { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue) 0%, var(--gold) 100%);
+      border-radius: 3px;
+      transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+    }
+    .dim-score {
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: var(--text);
+      text-align: right;
+    }
+    .dim-reason {
+      grid-column: 1 / -1;
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.5;
+      margin-top: 0.1rem;
+    }
+
+    /* ── BACK TRANSLATION ── */
+    .back-panel {
+      margin-top: 1.2rem;
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--border);
+      background: #0e0e18;
+      border-radius: 3px;
+    }
+    .back-panel-label {
+      font-family: 'Courier New', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.5rem;
+    }
+    .back-text {
+      font-size: 0.85rem;
+      color: var(--text);
+      font-style: italic;
+      line-height: 1.7;
+      margin-bottom: 0.7rem;
+      min-height: 2.5rem;
+    }
+
+    /* ── RADAR + CALC ── */
+    .chart-wrap { width: 100%; max-width: 300px; margin: 0 auto 1.2rem; }
+    .vector-box {
+      font-family: 'Courier New', monospace;
+      font-size: 0.74rem;
+      color: var(--blue);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 0.7rem 0.9rem;
+      border-radius: 3px;
+      white-space: pre;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+    }
+    .meter-wrap {
+      padding: 0.7rem 0.9rem;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      margin-bottom: 1rem;
+    }
+    .meter-label {
+      font-family: 'Courier New', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.45rem;
+    }
+    .meter-bg { height: 7px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 0.35rem; }
+    .meter-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease, background 0.5s ease; }
+    .meter-desc { font-family: 'Courier New', monospace; font-size: 0.68rem; color: var(--muted); }
+
+    /* ── OPERATIONS ── */
+    .section-title {
+      font-family: 'Courier New', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      margin-bottom: 0.65rem;
+    }
+    .ops-row { display: flex; gap: 0.4rem; margin-bottom: 0.6rem; align-items: center; }
+    #conceptBStatus { font-family: 'Courier New', monospace; font-size: 0.72rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .op-buttons { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
+    .op-result {
+      border: 1px solid var(--border);
+      padding: 0.9rem;
+      border-radius: 3px;
+      background: #0e0e18;
+    }
+    .op-result-title {
+      font-family: 'Courier New', monospace;
+      font-size: 0.68rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+    .op-interpretation { font-size: 0.82rem; font-style: italic; color: var(--muted); line-height: 1.6; margin-top: 0.5rem; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.85rem;
+      padding: 1.5rem 0;
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    /* ── DISPUTE MODE ── */
+    .dispute-section {
+      border-top: 1px solid var(--border);
+      padding: 1.2rem 2rem 1.4rem;
+      background: #0e0e18;
+    }
+    .dispute-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 0.9rem; }
+    .dispute-title {
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+    .dispute-desc { font-size: 0.8rem; color: var(--muted); font-style: italic; }
+    .dispute-load-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; align-items: center; }
+    .dispute-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1rem; }
+    .dispute-user {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 0.9rem 1rem;
+      border-radius: 3px;
+    }
+    .dispute-user-label {
+      font-family: 'Courier New', monospace;
+      font-size: 0.72rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.7rem;
+    }
+    .slider-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
+    .slider-label { font-family: 'Courier New', monospace; font-size: 0.68rem; color: var(--muted); width: 105px; flex-shrink: 0; }
+    input[type="range"] { flex: 1; accent-color: var(--gold); cursor: pointer; }
+    .slider-val { font-family: 'Courier New', monospace; font-size: 0.75rem; color: var(--text); width: 18px; text-align: right; }
+    .divergence-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.9rem 1rem;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.76rem;
+    }
+    .divergence-title { color: var(--gold); margin-bottom: 0.6rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; }
+    .divergence-stats { color: var(--text); margin-bottom: 0.6rem; line-height: 1.8; }
+    .divergence-bars { white-space: pre; color: var(--muted); margin-bottom: 0.7rem; line-height: 1.7; }
+    .divergence-quote {
+      font-family: 'Georgia', serif;
+      font-style: italic;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+      border-top: 1px solid var(--border);
+      padding-top: 0.6rem;
+      margin-top: 0.3rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 0.6rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Courier New', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      background: #0a0a10;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    #clarkeCounter { color: var(--blue); transition: color 1s; }
+    #clarkeCounter.stars-out { color: var(--gold); }
+
+    @media (max-width: 760px) {
+      .main { grid-template-columns: 1fr; }
+      .panel { border-right: none; border-bottom: 1px solid var(--border); }
+      .header-quotes { grid-template-columns: 1fr; }
+      .dispute-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════ -->
+<header>
+  <div class="header-top">
+    <div class="header-title">⬡ Concepts Machine</div>
+    <div class="header-subtitle">A Universal Characteristic Engine</div>
+  </div>
+  <div class="header-quotes">
+    <blockquote>
+      "A kind of alphabet of human thoughts can be worked out, and through the combination of its
+      letters and the analysis of words that are made of them, everything can both be discovered and judged."
+      <cite>— G.W. Leibniz, <em>Towards a Universal Characteristic</em> (1679)</cite>
+    </blockquote>
+    <blockquote>
+      "We compute the Name of God." The monks had been at it for three months now… the end of the
+      project was a mere matter of time.
+      <cite>— Arthur C. Clarke, <em>The Nine Billion Names of God</em> (1953)</cite>
+    </blockquote>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════
+     STRESS TEST CHIPS
+══════════════════════════════════════════ -->
+<div class="chips-bar">
+  <span class="chips-label">Abstraction stress test →</span>
+  <div id="chipsContainer"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MAIN PANELS
+══════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- LEFT: Language View -->
+  <div class="panel" id="langPanel">
+    <div class="panel-label">⟨ Language View — Concept Input</div>
+
+    <div class="input-row">
+      <input type="text" id="conceptInput" placeholder="Enter a concept: justice, God, beauty, stone…" />
+      <button id="vectorizeBtn" onclick="vectorizeConcept()">Vectorize →</button>
+    </div>
+
+    <div id="langError" class="error-msg" style="display:none"></div>
+    <div id="warningBox" class="warning-box" style="display:none"></div>
+    <div id="estimateBox" class="estimate-box" style="display:none"></div>
+
+    <div id="conceptDisplay" style="display:none">
+      <div class="concept-name" id="conceptNameEl"></div>
+      <div class="tags-row" id="tagsRow"></div>
+      <hr class="divider">
+      <div class="dim-list" id="dimList"></div>
+      <hr class="divider">
+      <div class="back-panel">
+        <div class="back-panel-label">Vector → Language (back-translation)</div>
+        <div class="back-text" id="backText">
+          <span style="color:var(--muted)">Click "Translate Back" to render this vector as natural language…</span>
+        </div>
+        <button onclick="backTranslate()">Translate Vector → Language</button>
+      </div>
+    </div>
+
+    <div id="langEmpty" class="empty-state">
+      Input a concept above, or select one from the stress test chips.<br>
+      The machine will attempt to formalize it.
+    </div>
+  </div>
+
+  <!-- RIGHT: Calculation View -->
+  <div class="panel" id="calcPanel">
+    <div class="panel-label">⟩ Calculation View — Vector Space</div>
+
+    <div id="calcEmpty" class="empty-state">
+      Awaiting vectorization.<br>
+      The numeric form of a concept will appear here.
+    </div>
+
+    <div id="calcDisplay" style="display:none">
+      <div class="chart-wrap">
+        <canvas id="radarChart"></canvas>
+      </div>
+
+      <div class="vector-box" id="rawVectorBox"></div>
+
+      <div class="meter-wrap">
+        <div class="meter-label">Abstraction Index</div>
+        <div class="meter-bg">
+          <div class="meter-fill" id="abstractionFill" style="width:0%"></div>
+        </div>
+        <div class="meter-desc" id="abstractionDesc">—</div>
+      </div>
+
+      <hr class="divider">
+      <div class="section-title">Operations — Concept Arithmetic</div>
+      <div class="ops-row">
+        <input type="text" id="conceptBInput" placeholder="Second concept (B)…" style="flex:1" />
+        <button onclick="loadConceptB()">Load B</button>
+      </div>
+      <div id="conceptBStatus">— no second concept loaded</div>
+      <div class="op-buttons">
+        <button onclick="doOp('compare')">Compare A↔B</button>
+        <button onclick="doOp('average')">Average A+B</button>
+        <button onclick="doOp('subtract')">A − B</button>
+        <button onclick="doOp('add')">A + B</button>
+      </div>
+      <div id="opResultWrap" style="display:none" class="op-result">
+        <div class="op-result-title" id="opResultTitle"></div>
+        <div class="vector-box" id="opResultVector" style="margin-bottom:0.5rem"></div>
+        <div class="op-interpretation" id="opResultInterp"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- .main -->
+
+<!-- ══════════════════════════════════════════
+     DISPUTE MODE
+══════════════════════════════════════════ -->
+<div class="dispute-section">
+  <div class="dispute-header">
+    <span class="dispute-title">⟁ Dispute Mode</span>
+    <span class="dispute-desc">Two users define the same concept. The machine measures the gap.</span>
+  </div>
+  <div class="dispute-load-row">
+    <input type="text" id="disputeConceptInput" placeholder="Contested concept: justice, freedom, God…" style="max-width:280px" />
+    <button onclick="loadDisputeConcept()">Set Concept</button>
+  </div>
+  <div class="dispute-grid">
+    <div class="dispute-user">
+      <div class="dispute-user-label" id="disputeLabelA">User A — Definition</div>
+      <div id="disputeSlidersA"></div>
+    </div>
+    <div class="dispute-user">
+      <div class="dispute-user-label" id="disputeLabelB">User B — Definition</div>
+      <div id="disputeSlidersB"></div>
+    </div>
+  </div>
+  <div class="divergence-box" id="divergenceBox">
+    <div class="divergence-title">Divergence Analysis</div>
+    <div class="divergence-stats" id="divergenceStats">— move the sliders to see how two definitions diverge</div>
+    <div class="divergence-bars" id="divergenceBars"></div>
+    <div class="divergence-quote">
+      "The machine cannot reconcile these definitions. Both are coherent. Neither is wrong.
+      Leibniz assumed agreement was possible; Clarke counted what could not be named."
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer>
+  <span>Concepts Machine — Computational Civilization · No API required</span>
+  <span id="clarkeCounter">Names computed: 0 / 9,000,000,000</span>
+  <span>After Leibniz (1679) · Clarke (1953)</span>
+</footer>
+
+<!-- ══════════════════════════════════════════
+     SCRIPT
+══════════════════════════════════════════ -->
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DIMENSIONS
+// ═══════════════════════════════════════════════════════════════
+const DIMS = [
+  { key: 'rationality',  label: 'Rationality',  desc: 'Amenability to formal/logical analysis' },
+  { key: 'sacredness',   label: 'Sacredness',   desc: 'Religious or spiritual significance' },
+  { key: 'emotionality', label: 'Emotionality', desc: 'How emotionally charged or felt' },
+  { key: 'socialScope',  label: 'Social Scope', desc: 'Individual (0) to civilizational (10)' },
+  { key: 'moralWeight',  label: 'Moral Weight', desc: 'Degree of ethical significance' },
+  { key: 'materiality',  label: 'Materiality',  desc: 'Physical/concrete (10) to pure abstraction (0)' },
+  { key: 'universality', label: 'Universality', desc: 'Culturally specific (0) to cross-cultural (10)' },
+];
+
+// ═══════════════════════════════════════════════════════════════
+// CONCEPT DICTIONARY
+// Scores: rationality, sacredness, emotionality, socialScope,
+//         moralWeight, materiality, universality  (all 0–10)
+// ═══════════════════════════════════════════════════════════════
+const CONCEPTS = {
+  // ── Sacred / theological
+  god:           [2, 10,  9, 10,  9,  0,  7],
+  soul:          [2,  9,  8,  3,  7,  0,  7],
+  faith:         [2, 10,  9,  7,  8,  0,  7],
+  holiness:      [2, 10,  7,  6,  9,  1,  6],
+  transcendence: [3,  9,  7,  5,  6,  0,  6],
+  prayer:        [2,  9,  8,  4,  6,  2,  6],
+  sin:           [2,  9,  8,  6,  9,  1,  6],
+  grace:         [2,  9,  8,  6,  8,  0,  6],
+  heaven:        [2, 10,  8,  7,  7,  1,  6],
+  sacred:        [2,  9,  7,  6,  7,  1,  6],
+
+  // ── Abstract values
+  justice:       [7,  4,  8,  9, 10,  2,  7],
+  freedom:       [5,  3,  9,  8,  9,  1,  7],
+  truth:         [9,  5,  6,  8,  9,  2,  9],
+  beauty:        [4,  4,  9,  5,  4,  3,  6],
+  love:          [2,  6, 10,  6,  8,  1,  9],
+  hope:          [4,  5,  9,  6,  6,  0,  9],
+  wisdom:        [8,  5,  5,  7,  8,  1,  8],
+  purpose:       [5,  5,  7,  6,  7,  1,  7],
+  meaning:       [5,  5,  8,  6,  7,  0,  7],
+  virtue:        [6,  4,  6,  7, 10,  1,  7],
+  honor:         [5,  4,  8,  7,  9,  1,  6],
+  loyalty:       [4,  3,  8,  5,  8,  1,  6],
+  dignity:       [5,  5,  7,  7,  9,  1,  7],
+  compassion:    [4,  5,  9,  7,  9,  1,  8],
+  mercy:         [4,  6,  8,  6,  9,  1,  7],
+  conscience:    [5,  4,  8,  4, 10,  0,  7],
+
+  // ── Contested / political
+  civilization:  [7,  2,  6, 10,  7,  5,  7],
+  democracy:     [7,  1,  7, 10,  8,  3,  5],
+  equality:      [7,  2,  8,  9, 10,  2,  7],
+  rights:        [8,  2,  7,  9, 10,  2,  6],
+  revolution:    [5,  2,  9, 10,  7,  5,  7],
+  progress:      [8,  1,  6,  9,  6,  4,  6],
+  power:         [6,  2,  7,  9,  6,  4,  8],
+  law:           [9,  2,  4,  9,  8,  5,  6],
+  nation:        [6,  3,  7, 10,  5,  3,  6],
+  war:           [4,  2,  9, 10,  7,  8,  9],
+  peace:         [6,  4,  8, 10,  9,  2,  9],
+  culture:       [6,  3,  7,  9,  5,  3,  7],
+
+  // ── Mind / self / time
+  consciousness: [5,  6,  7,  4,  6,  2,  8],
+  mind:          [7,  3,  5,  4,  5,  1,  8],
+  memory:        [6,  3,  8,  4,  5,  2,  8],
+  identity:      [5,  4,  8,  5,  6,  2,  7],
+  self:          [5,  4,  8,  2,  6,  1,  8],
+  time:          [8,  4,  6,  9,  3,  2, 10],
+  death:         [5,  7, 10,  8,  7,  4, 10],
+  life:          [5,  6,  9,  8,  8,  7, 10],
+  infinity:      [8,  5,  5,  8,  3,  0,  9],
+  eternity:      [5,  8,  7,  8,  4,  0,  8],
+  nothingness:   [7,  5,  6,  5,  2,  0,  8],
+
+  // ── Knowledge / language
+  knowledge:     [9,  2,  4,  7,  5,  2,  8],
+  reason:        [10, 1,  3,  7,  6,  1,  8],
+  language:      [8,  2,  6,  9,  4,  2,  8],
+  number:        [10, 1,  1,  5,  1,  0, 10],
+  science:       [10, 1,  5,  9,  5,  6,  8],
+  art:           [4,  4,  9,  7,  4,  7,  7],
+  mathematics:   [10, 1,  3,  7,  3,  0, 10],
+
+  // ── Emotions
+  fear:          [3,  2, 10,  4,  4,  2, 10],
+  joy:           [3,  3, 10,  4,  3,  2,  9],
+  grief:         [2,  3, 10,  4,  4,  1,  9],
+  anger:         [2,  1, 10,  5,  5,  2,  9],
+  shame:         [3,  2,  9,  5,  7,  1,  7],
+  courage:       [4,  3,  8,  5,  8,  2,  8],
+
+  // ── Nature / physical world
+  nature:        [6,  5,  7,  9,  6,  8,  9],
+  water:         [8,  3,  3,  7,  2, 10, 10],
+  fire:          [7,  5,  7,  5,  2,  9, 10],
+  stone:         [8,  1,  1,  1,  0, 10,  9],
+  bread:         [8,  4,  4,  7,  3, 10,  9],
+  body:          [7,  3,  7,  3,  5, 10, 10],
+  home:          [5,  3,  8,  3,  5,  8,  8],
+  city:          [7,  2,  6,  8,  4,  9,  7],
+  earth:         [6,  5,  6,  9,  4, 10, 10],
+
+  // ── Human-made / social
+  money:         [8,  0,  6,  9,  5,  6,  8],
+  machine:       [10, 0,  2,  7,  3,  9,  7],
+  tool:          [9,  0,  2,  5,  2, 10,  8],
+  market:        [8,  0,  5,  9,  4,  6,  6],
+  ritual:        [3,  7,  7,  7,  6,  5,  7],
+  myth:          [3,  7,  7,  7,  5,  1,  7],
+  symbol:        [6,  5,  5,  7,  4,  3,  8],
+};
+
+// ═══════════════════════════════════════════════════════════════
+// REASONING TEMPLATES  (5 bands: 0-1, 2-3, 4-5, 6-7, 8-10)
+// ═══════════════════════════════════════════════════════════════
+function getDimReason(key, score, name) {
+  const n = `"${name}"`;
+  const band = score <= 1 ? 0 : score <= 3 ? 1 : score <= 5 ? 2 : score <= 7 ? 3 : 4;
+  const T = {
+    rationality: [
+      `${n} resists logical definition — it belongs to lived experience, not formal systems.`,
+      `${n} can be partially analyzed, but formal definitions always leave something essential behind.`,
+      `${n} has been formalized in some contexts, though its full scope escapes any single framework.`,
+      `${n} is largely amenable to formal analysis — its core properties can be reasoned about with care.`,
+      `${n} is highly formalizable — it can be encoded, computed on, and reasoned about with precision.`,
+    ],
+    sacredness: [
+      `${n} carries no particular sacred or spiritual significance in most traditions.`,
+      `${n} has minor spiritual resonance but is not considered central to religious life.`,
+      `${n} holds real weight in several spiritual traditions, though not uniformly sacred.`,
+      `${n} is deeply embedded in sacred traditions — its meaning is partly defined by the divine.`,
+      `${n} sits at the center of religious life — to formalize it risks blasphemy or absurdity.`,
+    ],
+    emotionality: [
+      `${n} is emotionally neutral — it can be discussed without significant affective charge.`,
+      `${n} has mild emotional resonance but rarely provokes intense feeling.`,
+      `${n} carries moderate emotional weight — it matters to people, though rarely overwhelms.`,
+      `${n} is emotionally charged — humans feel it before and more strongly than they define it.`,
+      `${n} saturates experience — it cannot be approached without intense emotion.`,
+    ],
+    socialScope: [
+      `${n} belongs to the individual — its meaning is personal, private, and non-transferable.`,
+      `${n} extends to small groups or intimate communities, but not much beyond.`,
+      `${n} operates at a social level — shaping institutions, norms, and collective understanding.`,
+      `${n} organizes whole societies — appearing in legal codes, political systems, and civilizations.`,
+      `${n} is civilizational in scale — its definition shapes the fate of entire peoples and eras.`,
+    ],
+    moralWeight: [
+      `${n} carries little moral significance — it can be discussed without ethical stakes.`,
+      `${n} has minor moral resonance but doesn't define right or wrong in most frameworks.`,
+      `${n} carries real ethical significance — it appears in moral arguments and codes of conduct.`,
+      `${n} is deeply moral — violations of it constitute serious wrongs in most traditions.`,
+      `${n} is a central moral concept — it defines what it means to act well or to fail utterly.`,
+    ],
+    materiality: [
+      `${n} is pure abstraction — it has no physical instantiation, only conceptual existence.`,
+      `${n} is largely abstract, though it may manifest in observable phenomena or behavior.`,
+      `${n} exists in both abstract and material forms — it can be gestured at and discussed.`,
+      `${n} is substantially physical — it exists in the world and can be encountered directly.`,
+      `${n} is fully material — it can be weighed, measured, or physically handled.`,
+    ],
+    universality: [
+      `${n} is culturally specific — its meaning shifts dramatically across traditions and eras.`,
+      `${n} recurs across cultures but with significant variation in content and emphasis.`,
+      `${n} appears in most human societies, though exact meanings and valuations diverge.`,
+      `${n} is broadly shared — most cultures recognize it, even if they define it differently.`,
+      `${n} is universal — every human society has grappled with it in some form.`,
+    ],
+  };
+  return T[key][band];
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BACK-TRANSLATION  (rule-based, profile-driven)
+// ═══════════════════════════════════════════════════════════════
+function generateBackTranslation(scores) {
+  const s = scores;
+  const parts = [];
+
+  // ── Opening: what is the dominant character?
+  const ranked = DIMS.map(d => ({ key: d.key, label: d.label, v: s[d.key] }))
+                     .sort((a, b) => b.v - a.v);
+  const top = ranked[0];
+  const bottom = ranked[ranked.length - 1];
+
+  if (top.key === 'rationality' && top.v >= 8) {
+    parts.push('The vector points toward something highly amenable to formal systems — an entity that can, in principle, be fully encoded and reasoned about.');
+  } else if (top.key === 'sacredness' && top.v >= 8) {
+    parts.push('The vector points toward something at the edge of formalization — an entity whose meaning is constituted by the sacred, and which resists reduction to any finite set of properties.');
+  } else if (top.key === 'emotionality' && top.v >= 8) {
+    parts.push('The vector points toward something experienced before it is understood — an entity that saturates feeling more fully than it submits to definition.');
+  } else if (top.key === 'socialScope' && top.v >= 8) {
+    parts.push('The vector points toward something civilizational in scale — an entity whose meaning can only be understood in relation to collective life, political systems, or entire historical eras.');
+  } else if (top.key === 'moralWeight' && top.v >= 8) {
+    parts.push('The vector points toward something with deep ethical gravity — an entity whose presence or absence determines what it means to act well or to fail as a moral being.');
+  } else if (top.key === 'materiality' && top.v >= 8) {
+    parts.push('The vector points toward something fully physical — an entity that exists in the world prior to interpretation, available to direct encounter.');
+  } else {
+    parts.push(`The vector is distributed across multiple dimensions, suggesting an entity that does not organize neatly around any single axis of meaning.`);
+  }
+
+  // ── Middle: notable tension or secondary character
+  const highSacred  = s.sacredness >= 7;
+  const highRat     = s.rationality >= 7;
+  const lowMat      = s.materiality <= 2;
+  const highEmo     = s.emotionality >= 8;
+  const highMoral   = s.moralWeight >= 8;
+  const lowUniv     = s.universality <= 3;
+  const highUniv    = s.universality >= 8;
+  const lowRat      = s.rationality <= 3;
+  const highScope   = s.socialScope >= 8;
+
+  if (highSacred && highRat) {
+    parts.push('A notable tension: the vector is simultaneously sacred and formally tractable — a rare combination that has historically generated both systematic theology and its critics.');
+  } else if (highMoral && lowUniv) {
+    parts.push('This entity claims moral authority while remaining culturally particular — a contested site where local norms present themselves in the language of universal obligation.');
+  } else if (highEmo && highRat) {
+    parts.push('The vector is both emotionally saturating and formally tractable — suggesting something that can be reasoned about precisely while still being felt intensely: law, perhaps, or grief that has been named.');
+  } else if (highSacred && lowMat && lowRat) {
+    parts.push('The vector converges on a space the machine cannot process: high sacredness, negligible materiality, low rationality. This is where the Leibnizian project encounters its boundary condition.');
+  } else if (highScope && highMoral) {
+    parts.push('Whatever this entity is, it operates at civilizational scale while carrying moral weight — suggesting a concept that has been used to legitimize both justice and violence across history.');
+  } else if (highUniv && lowMat) {
+    parts.push('The entity is simultaneously universal and immaterial — suggesting something felt or recognized across all cultures, yet never fully held in the hand.');
+  } else if (bottom.v <= 1) {
+    parts.push(`What is notably absent: ${bottom.label.toLowerCase()} registers at almost zero, suggesting that on this dimension, the entity simply does not participate.`);
+  } else {
+    parts.push('The dimensional profile is coherent, though no single axis dominates — the entity may be genuinely complex, or the seven dimensions may be insufficient to capture it.');
+  }
+
+  // ── Closing: commentary on formalizability
+  const abstraction = computeAbstraction(s);
+  if (abstraction > 0.78) {
+    parts.push('The machine\'s verdict: this concept is poorly served by numeric formalization. The precision of this vector likely exceeds its meaning.');
+  } else if (abstraction > 0.55) {
+    parts.push('The machine is uncertain here: the vector produces a coherent profile, but whether it clarifies or merely domesticates the original concept remains an open question.');
+  } else if (abstraction < 0.25) {
+    parts.push('The machine handles this concept with reasonable confidence — it is concrete enough that the seven dimensions capture most of what matters.');
+  } else {
+    parts.push('The machine produces a plausible formalization, with the usual caveat: something has been lost in translation, and the lost part may be the most important part.');
+  }
+
+  return parts.join(' ');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HEURISTIC ESTIMATION for unknown concepts
+// ═══════════════════════════════════════════════════════════════
+function estimateVector(word) {
+  const w = word.toLowerCase();
+
+  // Start from neutral midpoint
+  let r = 5, sa = 3, e = 5, sc = 5, mw = 5, mat = 3, u = 6;
+
+  // Suffix patterns
+  if (/ness$|ity$|ism$|ance$|ence$/.test(w)) { r += 1; mat -= 2; }
+  if (/tion$|sion$/.test(w))                  { r += 2; mat -= 1; }
+  if (/ful$|less$/.test(w))                   { e += 1; }
+
+  // Sacred / spiritual keywords
+  if (/god|div|holy|sacr|bless|pray|spirit|angel|demon|heav|hell|soul|holi/.test(w)) {
+    sa += 4; mat -= 2; r -= 2; u += 1;
+  }
+  if (/love|passion|heart|feel|joy|grief|fear|hate|rage|sorrow|anguish/.test(w)) {
+    e += 3; mat -= 1; u += 1;
+  }
+  if (/law|rule|right|just|equal|fair|court|legal|order/.test(w)) {
+    r += 3; sc += 2; mw += 3;
+  }
+  if (/free|liber|autonomy/.test(w)) {
+    e += 2; sc += 2; mw += 2; mat -= 1;
+  }
+  if (/power|force|strength|might/.test(w)) {
+    sc += 2; mat += 1; u += 1;
+  }
+  if (/war|conflict|viol|fight|battle/.test(w)) {
+    e += 3; sc += 3; mat += 2; u += 2;
+  }
+  if (/peace|calm|still|harmony/.test(w)) {
+    mw += 2; sc += 2; u += 2;
+  }
+  if (/time|age|era|period|moment/.test(w)) {
+    r += 2; sc += 2; u += 2;
+  }
+  if (/number|math|logic|ratio|calcul/.test(w)) {
+    r += 4; sa -= 2; e -= 2; mat -= 1; u += 2;
+  }
+  if (/body|flesh|blood|bone|hand|eye/.test(w)) {
+    mat += 5; sa += 1; e += 2; u += 2;
+  }
+  if (/machine|engine|comput|algorith|system|code/.test(w)) {
+    r += 4; sa -= 2; e -= 2; mat += 3;
+  }
+  if (/money|wealth|profit|trade|market|capital/.test(w)) {
+    r += 2; sc += 3; mat += 2;
+  }
+
+  // Word length heuristic: longer abstract-sounding words trend more abstract
+  if (w.length > 10) { mat -= 1; r += 1; }
+
+  const clamp = v => Math.max(0, Math.min(10, Math.round(v)));
+  return {
+    rationality:  clamp(r),
+    sacredness:   clamp(sa),
+    emotionality: clamp(e),
+    socialScope:  clamp(sc),
+    moralWeight:  clamp(mw),
+    materiality:  clamp(mat),
+    universality: clamp(u),
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FUZZY MATCHING — find closest known concepts
+// ═══════════════════════════════════════════════════════════════
+function ngramSimilarity(a, b, n = 2) {
+  const ngrams = s => {
+    const set = new Set();
+    for (let i = 0; i <= s.length - n; i++) set.add(s.slice(i, i + n));
+    return set;
+  };
+  const sa = ngrams(a), sb = ngrams(b);
+  let inter = 0;
+  sa.forEach(g => { if (sb.has(g)) inter++; });
+  return inter / Math.max(1, Math.max(sa.size, sb.size));
+}
+
+function findClosest(word, n = 3) {
+  const w = word.toLowerCase();
+  return Object.keys(CONCEPTS)
+    .map(k => ({ name: k, sim: ngramSimilarity(w, k) }))
+    .sort((a, b) => b.sim - a.sim)
+    .slice(0, n)
+    .map(x => x.name);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+const STRESS_WORDS = [
+  'soul', 'faith', 'God', 'justice', 'beauty', 'freedom',
+  'love', 'infinity', 'transcendence', 'civilization', 'holiness', 'purpose',
+];
+
+let conceptA  = null;  // { name, scores, isEstimate }
+let conceptB  = null;
+let clarkeCount = parseInt(localStorage.getItem('cm_clarke') || '0');
+let chart     = null;
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('conceptInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') vectorizeConcept();
+  });
+  document.getElementById('conceptBInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') loadConceptB();
+  });
+  document.getElementById('disputeConceptInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') loadDisputeConcept();
+  });
+
+  // Stress test chips
+  const container = document.getElementById('chipsContainer');
+  container.style.display = 'flex';
+  container.style.flexWrap = 'wrap';
+  container.style.gap = '0.35rem';
+  STRESS_WORDS.forEach(word => {
+    const btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.textContent = word;
+    btn.onclick = () => {
+      document.getElementById('conceptInput').value = word;
+      vectorizeConcept();
+    };
+    container.appendChild(btn);
+  });
+
+  initDisputeSliders();
+  initChart();
+  updateClarkeCounter();
+});
+
+// ═══════════════════════════════════════════════════════════════
+// CHART
+// ═══════════════════════════════════════════════════════════════
+function initChart() {
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: DIMS.map(d => d.label),
+      datasets: [{
+        label: 'A',
+        data: DIMS.map(() => 0),
+        fill: true,
+        backgroundColor: 'rgba(122,179,208,0.12)',
+        borderColor: 'rgba(122,179,208,0.75)',
+        pointBackgroundColor: '#c8a96e',
+        pointBorderColor: '#c8a96e',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        r: {
+          min: 0, max: 10,
+          grid: { color: '#2a2a3e' },
+          angleLines: { color: '#2a2a3e' },
+          pointLabels: {
+            color: '#7070a0',
+            font: { size: 10, family: "'Courier New', monospace" },
+          },
+          ticks: { display: false },
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+function setChartData(vecA, labelA, vecB, labelB) {
+  chart.data.labels = DIMS.map(d => d.label);
+  chart.data.datasets = [{
+    label: labelA || 'A',
+    data: DIMS.map(d => vecA[d.key] ?? 0),
+    fill: true,
+    backgroundColor: 'rgba(122,179,208,0.12)',
+    borderColor: 'rgba(122,179,208,0.75)',
+    pointBackgroundColor: '#c8a96e',
+    pointBorderColor: '#c8a96e',
+    pointRadius: 4,
+  }];
+  if (vecB) {
+    chart.data.datasets.push({
+      label: labelB || 'B',
+      data: DIMS.map(d => vecB[d.key] ?? 0),
+      fill: true,
+      backgroundColor: 'rgba(200,169,110,0.10)',
+      borderColor: 'rgba(200,169,110,0.65)',
+      pointBackgroundColor: '#7ab3d0',
+      pointBorderColor: '#7ab3d0',
+      pointRadius: 4,
+    });
+  }
+  chart.update();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOOKUP  (dictionary → estimate fallback)
+// ═══════════════════════════════════════════════════════════════
+function lookupConcept(name) {
+  const key = name.toLowerCase().trim();
+  if (CONCEPTS[key]) {
+    const arr = CONCEPTS[key];
+    const scores = {};
+    DIMS.forEach((d, i) => { scores[d.key] = arr[i]; });
+    return { name, scores, isEstimate: false };
+  }
+  // Not found — estimate + find close matches
+  const scores = estimateVector(key);
+  const closest = findClosest(key, 3);
+  return { name, scores, isEstimate: true, closest };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// VECTORIZE — CONCEPT A
+// ═══════════════════════════════════════════════════════════════
+function vectorizeConcept() {
+  const name = document.getElementById('conceptInput').value.trim();
+  if (!name) return;
+
+  hideEl('langError');
+  const result = lookupConcept(name);
+  conceptA = result;
+  renderLangPanel(result);
+  renderCalcPanel(result);
+  incrementClarke();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER — LANGUAGE PANEL
+// ═══════════════════════════════════════════════════════════════
+function renderLangPanel(c) {
+  hideEl('langEmpty');
+  showEl('conceptDisplay');
+
+  document.getElementById('conceptNameEl').textContent = c.name;
+
+  // Estimate notice
+  const estBox = document.getElementById('estimateBox');
+  if (c.isEstimate) {
+    estBox.style.display = 'block';
+    const nearby = c.closest && c.closest.length
+      ? `Nearest known concepts: ${c.closest.join(', ')}.`
+      : '';
+    estBox.textContent =
+      `"${c.name}" is not in the dictionary. Vector estimated from word patterns. ${nearby} Results are speculative.`;
+  } else {
+    estBox.style.display = 'none';
+  }
+
+  // Tags (computed from scores)
+  const tagsRow = document.getElementById('tagsRow');
+  tagsRow.innerHTML = '';
+  const addTag = (label, cls) => {
+    const span = document.createElement('span');
+    span.className = `tag ${cls}`;
+    span.textContent = label;
+    tagsRow.appendChild(span);
+  };
+  const s = c.scores;
+  if (c.isEstimate) addTag('estimated', 'estimated');
+  if (s.materiality <= 2)  addTag('abstract', 'abstract');
+  if (s.materiality >= 8)  addTag('concrete', 'concrete');
+  if (s.sacredness >= 7)   addTag('sacred', 'sacred');
+  if (s.moralWeight >= 8)  addTag('moral', 'moral');
+  if (s.universality >= 8) addTag('universal', 'universal');
+  if (s.universality <= 3) addTag('contested', 'contested');
+
+  // Warning
+  const warnEl = document.getElementById('warningBox');
+  if (computeAbstraction(s) > 0.62) {
+    warnEl.style.display = 'block';
+    warnEl.textContent = 'High abstraction detected: precision may exceed meaning.';
+  } else {
+    warnEl.style.display = 'none';
+  }
+
+  // Dimension bars + reasoning
+  const dimList = document.getElementById('dimList');
+  dimList.innerHTML = '';
+  DIMS.forEach(d => {
+    const score = s[d.key];
+    const reason = getDimReason(d.key, score, c.name);
+    const item = document.createElement('div');
+    item.innerHTML = `
+      <div class="dim-row">
+        <span class="dim-name">${d.label}</span>
+        <div class="bar-bg"><div class="bar-fill" style="width:${score * 10}%"></div></div>
+        <span class="dim-score">${score}</span>
+      </div>
+      <div class="dim-reason">${reason}</div>
+    `;
+    dimList.appendChild(item);
+  });
+
+  // Reset back-translation
+  document.getElementById('backText').innerHTML =
+    '<span style="color:var(--muted)">Click "Translate Back" to render this vector as natural language…</span>';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER — CALCULATION PANEL
+// ═══════════════════════════════════════════════════════════════
+function renderCalcPanel(c) {
+  hideEl('calcEmpty');
+  showEl('calcDisplay');
+
+  setChartData(c.scores, c.name, conceptB?.scores, conceptB?.name);
+  document.getElementById('rawVectorBox').textContent = formatVector(c.scores, c.name);
+
+  const pct = Math.round(computeAbstraction(c.scores) * 100);
+  const fill = document.getElementById('abstractionFill');
+  fill.style.width = pct + '%';
+  fill.style.background =
+    pct > 70 ? 'var(--warning)' :
+    pct > 40 ? 'var(--blue)' :
+    'var(--success)';
+  document.getElementById('abstractionDesc').textContent =
+    `${pct}% — ${
+      pct > 80 ? 'critical: this concept may resist formalization entirely' :
+      pct > 60 ? 'high: numeric precision may exceed conceptual clarity' :
+      pct > 40 ? 'moderate: some dimensions remain interpretive' :
+      'low: concept is relatively formalizable'
+    }`;
+
+  hideEl('opResultWrap');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BACK-TRANSLATION
+// ═══════════════════════════════════════════════════════════════
+function backTranslate() {
+  if (!conceptA) return;
+  document.getElementById('backText').textContent = generateBackTranslation(conceptA.scores);
+  incrementClarke();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CONCEPT B + OPERATIONS
+// ═══════════════════════════════════════════════════════════════
+function loadConceptB() {
+  const name = document.getElementById('conceptBInput').value.trim();
+  if (!name) return;
+
+  conceptB = lookupConcept(name);
+  const status = document.getElementById('conceptBStatus');
+  status.textContent = conceptB.isEstimate
+    ? `— B: "${conceptB.name}" loaded (estimated)`
+    : `— B: "${conceptB.name}" loaded`;
+  status.style.color = 'var(--gold)';
+
+  if (conceptA) setChartData(conceptA.scores, conceptA.name, conceptB.scores, conceptB.name);
+  incrementClarke();
+}
+
+function doOp(op) {
+  if (!conceptA) { showError('langError', 'Vectorize a concept first.'); return; }
+  if (op !== 'compare' && !conceptB) {
+    document.getElementById('conceptBStatus').textContent = '— load concept B first';
+    document.getElementById('conceptBStatus').style.color = 'var(--warning)';
+    return;
+  }
+  if (op === 'compare' && !conceptB) {
+    document.getElementById('conceptBStatus').textContent = '— load concept B first';
+    document.getElementById('conceptBStatus').style.color = 'var(--warning)';
+    return;
+  }
+
+  const wrap    = document.getElementById('opResultWrap');
+  const titleEl = document.getElementById('opResultTitle');
+  const vecEl   = document.getElementById('opResultVector');
+  const interpEl= document.getElementById('opResultInterp');
+
+  showEl('opResultWrap');
+  incrementClarke();
+
+  if (op === 'compare') {
+    const cos = cosineSim(conceptA.scores, conceptB.scores);
+    const euc = euclidDist(conceptA.scores, conceptB.scores);
+    titleEl.textContent = `COMPARISON: "${conceptA.name}" ↔ "${conceptB.name}"`;
+
+    const deltas = DIMS.map(d => {
+      const diff = conceptA.scores[d.key] - conceptB.scores[d.key];
+      const bar  = diff > 0 ? 'A▸' + '█'.repeat(Math.abs(Math.round(diff)))
+                 : diff < 0 ? 'B▸' + '█'.repeat(Math.abs(Math.round(diff)))
+                 :             '≈';
+      return `  ${d.label.padEnd(18)} ${bar.padEnd(14)} (${diff > 0 ? '+' : ''}${diff})`;
+    }).join('\n');
+
+    vecEl.textContent =
+      `cosine similarity : ${cos.toFixed(4)}\neuclidean distance: ${euc.toFixed(3)}\n\ndimension deltas:\n${deltas}`;
+
+    interpEl.textContent =
+      cos > 0.96 ? 'Near-identical vectors — these concepts share almost all dimensional structure. Whatever distinguishes them, it lies outside the machine\'s seven dimensions.' :
+      cos > 0.85 ? 'High similarity — these concepts overlap significantly. The machine sees them as members of the same conceptual neighborhood.' :
+      cos > 0.65 ? 'Moderate similarity — related but occupying distinct regions. They may share a family resemblance while diverging in crucial ways.' :
+      cos > 0.40 ? 'Low similarity — these concepts diverge substantially. The machine finds them far apart; human intuition may or may not agree.' :
+      'Very low similarity — the machine places these concepts at opposite ends of conceptual space. That distance is itself a claim worth interrogating.';
+
+    setChartData(conceptA.scores, conceptA.name, conceptB.scores, conceptB.name);
+
+  } else {
+    const resultVec = {};
+    DIMS.forEach(d => {
+      const a = conceptA.scores[d.key], b = conceptB.scores[d.key];
+      resultVec[d.key] =
+        op === 'average'  ? Math.round((a + b) / 2) :
+        op === 'subtract' ? Math.max(0, Math.min(10, a - b)) :
+        op === 'add'      ? Math.max(0, Math.min(10, a + b)) : a;
+    });
+
+    const opLabel =
+      op === 'average'  ? `AVERAGE: ("${conceptA.name}" + "${conceptB.name}") / 2` :
+      op === 'subtract' ? `SUBTRACT: "${conceptA.name}" − "${conceptB.name}"` :
+                          `ADD: "${conceptA.name}" + "${conceptB.name}"`;
+
+    titleEl.textContent = opLabel;
+    vecEl.textContent = formatVector(resultVec, 'result');
+    setChartData(resultVec, 'result');
+
+    // Interpret the result vector
+    const interp = generateBackTranslation(resultVec);
+    const absIdx = Math.round(computeAbstraction(resultVec) * 100);
+    const closest = Object.keys(CONCEPTS)
+      .map(k => {
+        const sc = {};
+        DIMS.forEach((d, i) => { sc[d.key] = CONCEPTS[k][i]; });
+        return { name: k, dist: euclidDist(resultVec, sc) };
+      })
+      .sort((a, b) => a.dist - b.dist)
+      .slice(0, 2)
+      .map(x => x.name);
+
+    interpEl.textContent =
+      `${interp}\n\n` +
+      `Closest concepts in dictionary: ${closest.join(', ')} ` +
+      `(Abstraction index: ${absIdx}%)`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DISPUTE MODE
+// ═══════════════════════════════════════════════════════════════
+function initDisputeSliders() {
+  ['A', 'B'].forEach(user => {
+    const container = document.getElementById(`disputeSliders${user}`);
+    container.innerHTML = '';
+    DIMS.forEach(d => {
+      const row = document.createElement('div');
+      row.className = 'slider-row';
+      row.innerHTML = `
+        <span class="slider-label">${d.label}</span>
+        <input type="range" min="0" max="10" value="5" step="1"
+          id="ds_${user}_${d.key}" oninput="onSlider('${user}','${d.key}',this.value)" />
+        <span class="slider-val" id="dv_${user}_${d.key}">5</span>
+      `;
+      container.appendChild(row);
+    });
+  });
+  computeDivergence();
+}
+
+function loadDisputeConcept() {
+  const name = document.getElementById('disputeConceptInput').value.trim();
+  if (!name) return;
+  document.getElementById('disputeLabelA').textContent = `User A — "${name}"`;
+  document.getElementById('disputeLabelB').textContent = `User B — "${name}"`;
+
+  // Optionally pre-load the dictionary vector into A's sliders as a starting point
+  const result = lookupConcept(name);
+  if (!result.isEstimate) {
+    DIMS.forEach(d => {
+      const el = document.getElementById(`ds_A_${d.key}`);
+      const valEl = document.getElementById(`dv_A_${d.key}`);
+      if (el) { el.value = result.scores[d.key]; valEl.textContent = result.scores[d.key]; }
+    });
+  }
+  computeDivergence();
+}
+
+function onSlider(user, key, val) {
+  document.getElementById(`dv_${user}_${key}`).textContent = val;
+  computeDivergence();
+}
+
+function getDisputeScores(user) {
+  const scores = {};
+  DIMS.forEach(d => {
+    scores[d.key] = parseInt(document.getElementById(`ds_${user}_${d.key}`).value);
+  });
+  return scores;
+}
+
+function computeDivergence() {
+  const a = getDisputeScores('A');
+  const b = getDisputeScores('B');
+  const totalDiv = euclidDist(a, b);
+  const maxDiff = DIMS
+    .map(d => ({ dim: d, diff: Math.abs(a[d.key] - b[d.key]) }))
+    .reduce((m, x) => x.diff > m.diff ? x : m);
+
+  const statsEl = document.getElementById('divergenceStats');
+  statsEl.innerHTML =
+    `Total divergence (Euclidean): <span style="color:var(--gold)">${totalDiv.toFixed(2)}</span> ` +
+    `<span style="color:var(--muted)">${
+      totalDiv < 3  ? '(largely agreed)' :
+      totalDiv < 6  ? '(partially contested)' :
+      totalDiv < 10 ? '(significantly contested)' :
+                      '(irreconcilably contested)'
+    }</span><br>` +
+    `Greatest disagreement: <span style="color:var(--gold)">${maxDiff.dim.label}</span> ` +
+    `(Δ${maxDiff.diff})`;
+
+  document.getElementById('divergenceBars').textContent = DIMS.map(d => {
+    const diff = a[d.key] - b[d.key];
+    if (Math.abs(diff) === 0) return `  ${d.label.padEnd(18)} ≈ equal`;
+    const flag = Math.abs(diff) > 4 ? '!' : ' ';
+    const bar  = diff > 0 ? `A▸${'▮'.repeat(Math.abs(diff))}` : `B▸${'▮'.repeat(Math.abs(diff))}`;
+    return `${flag} ${d.label.padEnd(18)} ${bar}`;
+  }).join('\n');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CLARKE COUNTER
+// ═══════════════════════════════════════════════════════════════
+function incrementClarke() {
+  clarkeCount++;
+  localStorage.setItem('cm_clarke', clarkeCount);
+  updateClarkeCounter();
+}
+
+function updateClarkeCounter() {
+  const el = document.getElementById('clarkeCounter');
+  el.textContent = `Names computed: ${clarkeCount.toLocaleString()} / 9,000,000,000`;
+  if (clarkeCount === 9) {
+    setTimeout(() => {
+      el.classList.add('stars-out');
+      el.textContent = 'The stars are going out.';
+      setTimeout(() => {
+        el.classList.remove('stars-out');
+        updateClarkeCounter();
+      }, 4500);
+    }, 1200);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════
+function computeAbstraction(s) {
+  return (
+    ((10 - s.materiality) / 10) * 0.40 +
+    (s.sacredness          / 10) * 0.28 +
+    (s.emotionality        / 10) * 0.16 +
+    ((10 - s.rationality)  / 10) * 0.16
+  );
+}
+
+function formatVector(scores, name) {
+  const mag = Math.sqrt(DIMS.reduce((s, d) => s + (scores[d.key] ?? 0) ** 2, 0));
+  return [
+    `vec("${name}") = [`,
+    ...DIMS.map(d => `  ${d.label.padEnd(18)} ${String(scores[d.key] ?? 0).padStart(4)},`),
+    `]`,
+    `‖v‖ = ${mag.toFixed(4)}`,
+  ].join('\n');
+}
+
+function cosineSim(a, b) {
+  const dot  = DIMS.reduce((s, d) => s + (a[d.key] ?? 0) * (b[d.key] ?? 0), 0);
+  const magA = Math.sqrt(DIMS.reduce((s, d) => s + (a[d.key] ?? 0) ** 2, 0));
+  const magB = Math.sqrt(DIMS.reduce((s, d) => s + (b[d.key] ?? 0) ** 2, 0));
+  return (magA === 0 || magB === 0) ? 0 : dot / (magA * magB);
+}
+
+function euclidDist(a, b) {
+  return Math.sqrt(DIMS.reduce((s, d) => s + ((a[d.key] ?? 0) - (b[d.key] ?? 0)) ** 2, 0));
+}
+
+function showEl(id) { document.getElementById(id).style.display = 'block'; }
+function hideEl(id) { document.getElementById(id).style.display = 'none'; }
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+</script>
+</body>
+</html>
